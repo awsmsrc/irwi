@@ -7,11 +7,11 @@ module Irwi::Extensions::Models::WikiPageVersion
   module InstanceMethods
 
     def next
-      self.class.first :conditions => ["id > ? AND page_id = ?", id, page_id], :order => 'id ASC'
+      self.class.where("id > ? AND page_id = ?", id, page_id).order('id ASC').first
     end
 
     def previous
-      self.class.first :conditions => ["id < ? AND page_id = ?", id, page_id], :order => 'id DESC'
+      self.class.where("id < ? AND page_id = ?", id, page_id).order('id DESC').first
     end
 
     protected
@@ -31,11 +31,11 @@ module Irwi::Extensions::Models::WikiPageVersion
 
     base.before_update :raise_on_update
 
-    base.scope :between, lambda { | first, last |
+    base.scope :between, -> (first, last) {
       first = first.to_i
       last = last.to_i
       first, last = last, first if last < first # Reordering if neeeded
-      { :conditions => [ 'number >= ? AND number <= ?', first, last ] }
+      where('number >= ? AND number <= ?', first, last)
     }
   end
 
